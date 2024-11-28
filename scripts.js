@@ -1,71 +1,60 @@
-const convertButton = document.querySelector(".convert-button")
-const currencySelect = document.querySelector(".currency-select")
+const convertButton = document.querySelector(".convert-button");
+const currencySelect = document.querySelector(".currency-select");
 
-function convertValues(){
-    const inputCurrencyValue = document.querySelector(".input-currency").value
-    const currencyValueToconvert = document.querySelector(".currency-value-to-convert") //Valor 
-    const currencyValueConvert = document.querySelector(".currency-value") //Valor da moeda convertida
+let dolarToday, euroToday, libraToday, bitcoinToday;
 
-    const dolarToday = 5.80
-    const euroToday = 6.04
-    const libraToday = 7.27
-    const bitcoinToday = 572584.14
+async function fetchExchangeRates() {
+    const response = await fetch('https://economia.awesomeapi.com.br/json/all');
+    const data = await response.json();
 
-    /*REAL*/
+    dolarToday = parseFloat(data.USD.high); // Alta do Dólar
+    euroToday = parseFloat(data.EUR.high);   // Alta do Euro
+    libraToday = parseFloat(data.GBP.high);  // Alta da Libra
+    bitcoinToday = 572584.14; // valor fixo ou buscar de outra API
+}
 
-    if(currencySelect.value == "real"){ // SE FOR REAL
+function convertValues() {
+    const inputCurrencyValue = parseFloat(document.querySelector(".input-currency").value.replace(',', '.'));
+    const currencyValueToconvert = document.querySelector(".currency-value-to-convert");
+    const currencyValueConvert = document.querySelector(".currency-value");
 
-        currencyValueToconvert.innerHTML = new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL"
-        }).format(inputCurrencyValue) // faz o formato da moeda
-
-    }
-
-    if(currencySelect.value == "dolar"){ //SE FOR DOLAR
-
-        currencyValueConvert.innerHTML = new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD"
-        }).format(inputCurrencyValue / dolarToday)
-
-    }
-
-    if(currencySelect.value == "euro"){// SE FOR EURO
-
-        currencyValueConvert.innerHTML = new Intl.NumberFormat("de-DE", {
-            style: "currency",
-            currency: "EUR"
-        }).format(inputCurrencyValue / euroToday)
-
-    }
-
-    if(currencySelect.value == "libra"){// SE FOR LIBRA
-
-        currencyValueConvert.innerHTML = new Intl.NumberFormat("sq-AL", {
-            style: "currency",
-            currency: "ALL"
-        }).format(inputCurrencyValue / libraToday)
-
-    }
-
-    if(currencySelect.value == "bitcoin"){ // SE FOR BTC
-
-        currencyValueConvert.innerHTML = new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD"
-        }).format(inputCurrencyValue / bitcoinToday)
-
+    if (isNaN(inputCurrencyValue)) {
+        alert("Por favor, insira um valor válido.");
+        return;
     }
 
     currencyValueToconvert.innerHTML = new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL"
-    }).format(inputCurrencyValue) // faz o formato da moeda
+    }).format(inputCurrencyValue);
 
+    if (currencySelect.value === "dolar") {
+        currencyValueConvert.innerHTML = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD"
+        }).format(inputCurrencyValue / dolarToday);
+    } else if (currencySelect.value === "euro") {
+        currencyValueConvert.innerHTML = new Intl.NumberFormat("de-DE", {
+            style: "currency",
+            currency: "EUR"
+        }).format(inputCurrencyValue / euroToday);
+    } else if (currencySelect.value === "libra") {
+        currencyValueConvert.innerHTML = new Intl.NumberFormat("en-GB", {
+            style: "currency",
+            currency: "GBP"
+        }).format(inputCurrencyValue / libraToday);
+    } else if (currencySelect.value === "bitcoin") {
+        currencyValueConvert.innerHTML = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD"
+        }).format(inputCurrencyValue / bitcoinToday);
+    } else {
+        // Se for Real, não há conversão
+        currencyValueConvert.innerHTML = currencyValueToconvert.innerHTML;
+    }
+   
 
     /* DOLAR para real*/
-
 
     if(currencySelect.value == "dolar"){ // SE FOR DOLAR
 
@@ -83,9 +72,7 @@ function convertValues(){
             currency: "BRL"
         }).format(dolarToday * inputCurrencyValue)
 
-    }
-
-    /* EURO para real*/
+         /* EURO para real*/
 
     if(currencySelect.value == "euro"){ // SE FOR EURO
 
@@ -141,6 +128,9 @@ function convertValues(){
         }).format(bitcoinToday * inputCurrencyValue)
     }
 
+    }
+
+
 }
 
 function changeCurrency() {
@@ -175,6 +165,11 @@ function changeCurrency() {
     
     convertValues
 }
-currencySelect.addEventListener("change", changeCurrency)
-convertButton.addEventListener("click",convertValues)
 
+
+currencySelect.addEventListener("change", changeCurrency)
+
+// Chame a função para buscar as taxas de câmbio ao carregar a página
+fetchExchangeRates().then(() => {
+    convertButton.addEventListener("click", convertValues);
+});
