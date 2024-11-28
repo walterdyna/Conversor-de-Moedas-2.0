@@ -10,7 +10,7 @@ async function fetchExchangeRates() {
     dolarToday = parseFloat(data.USD.high); // Alta do Dólar
     euroToday = parseFloat(data.EUR.high);   // Alta do Euro
     libraToday = parseFloat(data.GBP.high);  // Alta da Libra
-    bitcoinToday = 572584.14; // valor fixo ou buscar de outra API
+    bitcoinToday = parseFloat(data.BTC.high); // valor fixo ou buscar de outra API
 }
 
 function convertValues() {
@@ -44,9 +44,9 @@ function convertValues() {
             currency: "GBP"
         }).format(inputCurrencyValue / libraToday);
     } else if (currencySelect.value === "bitcoin") {
-        currencyValueConvert.innerHTML = new Intl.NumberFormat("en-US", {
+        currencyValueConvert.innerHTML = new Intl.NumberFormat("pt-BR", {
             style: "currency",
-            currency: "USD"
+            currency: "BRL"
         }).format(inputCurrencyValue / bitcoinToday);
     } else {
         // Se for Real, não há conversão
@@ -138,6 +138,12 @@ function changeCurrency() {
     const currencyImage = document.querySelector(".currency-img")
     const currencyImage2 = document.querySelector(".currency-img2")
 
+    if (currencySelect.value == "real"){
+        currencyName.innerHTML = "Real" 
+        currencyImage.src = "./assets/realBR1.png"
+        currencyImage2.src = "./assets/realBR1.png"
+    }
+
     if (currencySelect.value == "dolar"){
         currencyName.innerHTML = "Dólar Americano" 
         currencyImage.src = "./assets/Dolar.png"
@@ -163,7 +169,7 @@ function changeCurrency() {
         currencyImage2.src = "./assets/bitcoin.png"
     }
     
-    convertValues
+    convertValues()
 }
 
 
